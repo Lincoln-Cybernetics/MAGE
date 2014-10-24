@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+	<meta charset="UTF-8">
+    <head>
+        <title>MAGE</title>
+         
+        <style>/* Removes Mobile Highlight */ *{-webkit-tap-highlight-color: rgba(0, 0, 0, 0);}</style>
+       <script src = "MAGE.js"></script>
+       <script src = "testscript.js"></script>
+         
+    </head>
+    <body  bgcolor = "#1DA4F0" onload= "Main();">
+		<canvas id="mainscreen" width="1300" height="600" style = "position: fixed; left: 0px; top: 0px;"onclick= "mainX =Math.floor((event.pageX)/tileX) ; mainY = Math.floor((event.pageY)/tileY) ;mainClick();">MAGE requires JavaScript.</canvas>
+
+
+		<image src = "mobsheet.png"  height= "0" id = "mobz" style = "visibility:hidden" onload= "mobsheet = true;"></image> 
+        <image src = "items.png"  height= "0" id = "itemz" style = "visibility:hidden" onload= "itemsheet = true;"></image> 
+       <image src = "sstr.png"  height= "0" id = "sheet1" style = "visibility:hidden" onload= "psheet = true;"></image>
+       <image src = "Landscape.png" height= "0" id = "landscape" style = "visibility:hidden"onload= "mapsheet = true;" ></image> 
+        <image src = "LMarks.png" height= "0" id = "lmarks" style = "visibility:hidden" onload= "marksheet = true;"></image>
+        <image src = "Startpic.png" height= "0" id = "startscrn" style = "visibility:hidden" onload= "startpic = true;"></image>
+        <image src = "Splash.png" height= "0" id = "splash" style = "visibility:hidden" onload= "splash = true;"></image>
+       <!-- <image src = "startban.png" height= "0" id = "startban" style = "visibility:hidden" onload= "ban = true;"></image> -->
+</body>
+</html>
