@@ -5,13 +5,18 @@ function show_Splash(){
 	myScreen.drawImage(document.getElementById("splash"),0,0,800,500,0,0,scrnX,scrnY);
 	Game_State = "start";
 };
+
+//provides levels to the engine
+function get_Level(){
+	return new testlevel();
+};
+
+
 //starts the fun
 function  start_Game(){
-	//display();showControls();
-	//Game_State = "play";
 	Game_State = "menu";
 	var playermenu = new menu();
-	playermenu.title = "Pick a Character";
+	playermenu.title = "Pick an Explorer";
 	playermenu.choices = ["Dan","Stan","Fran","Dianne"];
 	playermenu.usewords = true;
 	playermenu.words = playermenu.choices;
@@ -33,31 +38,44 @@ function  start_Game(){
 	
 };
 
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//INPUT Methods
+
 //handles clicks on the screen during normal play (excepton the direction control)
 function handleInput(x,y){};
 
 //handles menu choices
 function handleMenu(choice){
+	chosen = false;menuPointer = 0; menuindex = 0;
 	switch(theMenu.title){
-		case "Pick a Character": player1.name = choice;if(choice == "Fran" || choice == "Dianne"){player1.properties.outfit.gender = "f";}
+		case "Pick an Explorer": player1.name = choice;if(choice == "Fran" || choice == "Dianne"){player1.properties.outfit.gender = "f";}
 		player1.set_img("R");
-		Game_State = "play";display();showControls();break;
+		Game_State = "menu";
+	var playermenu = new menu();
+	playermenu.title = "Pick a Skillset";
+	playermenu.choices = ["Ranger","Lumberjack","Diver"];
+	playermenu.usewords = true;
+	playermenu.words = playermenu.choices;
+	playermenu.type = "W+Player(costume)";
+	theMenu = playermenu;
+	showMenu();
+		break;
+		
+		case "Pick a Skillset":
+		player1.set_Property("class",choice);
+		Game_State = "play";player1.visCheck();display();showControls();
+		break;
 	}
 	};
 
-function get_Level(){
-	return new testlevel();
-};
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //LAND
-land.prototype = new tile();
 function land(){
 	tile.call(this);
 	this.marked = false;
-	//this.pic.sheet = "landscape";
 	this.pic.setInd(Math.round(Math.random()*17),0);
-	//this.xind = Math.round(Math.random()*17);
-	//this.yind = 0;//Math.round(Math.random()*3);
 	this.marked = false;
 	this.mark = false;
 	this.visible = false;
@@ -72,6 +90,7 @@ land.prototype.getVisible = function(){
 		return mylist;
 		};
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //test level
 function testlevel(){
 	level.call(this);
@@ -110,7 +129,7 @@ function testlevel(){
 };
 inheritPrototype(testlevel,level);
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////
 //test landmark
 function testmark(){ 
 	landmark.call(this);
@@ -119,23 +138,21 @@ function testmark(){
 	this.xout = 3;
 	this.yout = 3;
 	this.pic.setInd(2,2);
-	//this.xsiz = 200;
-	//this.ysiz = 200;
 }
 inheritPrototype(testmark,landmark);
 
-
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Explore! items
 function testitem(){
 	item.call(this);
 	this.visible = true;
 	this.collected = false;
 	this.pic.setInd(Math.round(Math.random()*5),Math.round(Math.random()*3));
-	//this.xind = Math.round(Math.random()*5);
-	//this.yind = Math.round(Math.random()*3);
 };
 inheritPrototype(testitem,item);
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////////
+//general unit (specific to Explore!)
 function myUnit(){
 	unit.call(this);
 	this.target = 0;
@@ -164,7 +181,22 @@ myUnit.prototype.command = function(cmd){
 			this.commandWrap();
 	};
 myUnit.prototype.commandWrap = function(){};
+myUnit.prototype.moveCheck = function(){
+	if(this.target.mapx < this.mapx){this.set_img("L");}
+	if(this.target.mapx > this.mapx){this.set_img("R");}
+	if(this.target.mapx > screenR+Xfact-(7+this.properties.screenborder)){if(Xfact+screenR < mymap.length){Xfact += 1;}}
+	if(this.target.mapx < Xfact+screenL+this.properties.screenborder+6){if(Xfact+screenL > 0){Xfact -= 1;}}
+	if(this.target.mapy > screenB+Yfact-(3+this.properties.screenborder)){if(Yfact+screenB < mymap[this.mapx].length){Yfact += 1;}}
+	if(this.target.mapy < Yfact+screenT+this.properties.screenborder+2){if(Yfact+screenT > 0){Yfact -= 1;}}
+	if(this.target.occupied == true){return false;}
+	return true;
+};
+myUnit.prototype.commandWrap = function(){this.visCheck();};
+myUnit.prototype.visCheck = function(){};
 
+
+/////////////////////////////////////////////////////////////////////////////////////////////
+//PLAYER
 function testplayer(){
 	myUnit.call(this);
 	this.name = "Dan";
@@ -173,19 +205,10 @@ function testplayer(){
 	this.properties.clothed = true;
 	this.properties.outfit = new costume();
 	this.properties.screenborder = 1;
-	//this.xind = 0;
-	//this.yind = 0;
+	this.properties.class = "Ranger";
 };
 inheritPrototype(testplayer,myUnit);
-testplayer.prototype.moveCheck = function(){
-	if(this.target.mapx < this.mapx){this.set_img("L");}
-	if(this.target.mapx > this.mapx){this.set_img("R");}
-	if(this.target.mapx > screenR+Xfact-(1+this.properties.screenborder)){if(Xfact+screenR < mymap.length){Xfact += 1;}}
-	if(this.target.mapx < Xfact+screenL+this.properties.screenborder){if(Xfact+screenL > 0){Xfact -= 1;}}
-	if(this.target.mapy > screenB+Yfact-(1+this.properties.screenborder)){if(Yfact+screenB < mymap[this.mapx].length){Yfact += 1;}}
-	if(this.target.mapy < Yfact+screenT+this.properties.screenborder){if(Yfact+screenT > 0){Yfact -= 1;}}
-	return true;
-};
+
 testplayer.prototype.set_img = function(image){
 	switch(image){
 		case "L": switch(this.name){
@@ -204,7 +227,6 @@ testplayer.prototype.set_img = function(image){
 					 this.properties.outfit.set_img("R");break;
 	}
 };
-testplayer.prototype.commandWrap = function(){this.visCheck();}
 testplayer.prototype.visCheck = function(){
 	for(var x = 0; x < mymap.length; x++){
 		for(var y = 0; y < mymap[x].length;y++){
@@ -217,24 +239,43 @@ testplayer.prototype.visCheck = function(){
 			}}
 };
 
+/////////////////////////////////////////////////////////////////////////////////////////////////////
+//Player character outfits
+
 function costume(){
 	gamePiece.call(this);
 	this.visible = true;
 	this.pic.sheet = "sheet1";
-	//this.xind = 2;
-	//this.yind = 1;
 	this.gender = "m";
+	this.direction = "r";
+	this.type = "Ranger";
 	};
 inheritPrototype(costume,gamePiece);
 costume.prototype.set_img = function(image){
 	switch(image){
 		case "L":switch(this.gender){
-				 case "m":this.pic.setInd(3,1);break;//this.xind = 3; this.yind = 1; break;
-				 case "f":this.pic.setInd(3,3);break;//this.xind = 3; this.yind = 3;break;
+				 case "m":switch(this.type){
+					case "Ranger": this.pic.setInd(3,1);break;
+					case "Diver": this.pic.setInd(5,2); break; 
+					case "Lumberjack": this.pic.setInd(5,0);break;
+				 }break;
+				 case "f":switch(this.type){
+					case "Ranger": this.pic.setInd(3,3);break;
+					case "Diver": this.pic.setInd(5,3); break; 
+					case "Lumberjack": this.pic.setInd(5,1);break;
+				 }break;
 			 }break;
 		case "R":switch(this.gender){
-				case "m":this.pic.setInd(2,1);break;//this.xind = 2; this.yind = 1;break;
-				case "f":this.pic.setInd(2,3);break;//this.xind = 2; this.yind = 3;break;
+				case "m":switch(this.type){
+					case "Ranger": this.pic.setInd(2,1);break;
+					case "Diver": this.pic.setInd(4,2); break; 
+					case "Lumberjack": this.pic.setInd(4,0);break;
+				 }break;
+				case "f":switch(this.type){
+					case "Ranger": this.pic.setInd(2,3);break;
+					case "Diver": this.pic.setInd(4,3); break; 
+					case "Lumberjack": this.pic.setInd(4,1);break;
+				 }break;
 			}break;
 	}
 };
