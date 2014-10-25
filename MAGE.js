@@ -61,6 +61,7 @@ var startpic = false;
 var ban = false;
 
 
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //functions start here, most general first
 function Main(){
 	setScreen(document.getElementById("mainscreen"));
@@ -85,8 +86,8 @@ function setLevel(lv){
 	mymap = lv.getMap();
 };
 
-
-
+///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//input
 //handles user input
 function mainClick(){
 	//mainX-mainY
@@ -152,18 +153,40 @@ function showMenu(menu){
 	myScreen.fillStyle = "#FFFFFF";
 	myScreen.font = tileY+'px Arial';
 	myScreen.fillText(theMenu.title,tileX*9,tileY);
+	
 	//display the options
 	var vshift = 0;
 	switch(theMenu.type){
+		
+	//Words only menu
 	case "W":
 	for (var a = 0; a < theMenu.words.length;a++){
 		myScreen.fillText(theMenu.words[a],tileX*9,tileY*(a+3));
 	} break;
+	
+	//words plus a picture menu
 	case "W+P": vshift = 2;
 	for (var a = 0; a < theMenu.words.length;a++){
 		myScreen.fillText(theMenu.words[a],tileX*9,tileY*(a+3+vshift));
 	}
 	var myImg = theMenu.pictures[menuPointer+menuindex];
+	myScreen.drawImage(document.getElementById(myImg.sheet),myImg.getXind()*imageIndex,myImg.getYind()*imageIndex,myImg.xsiz,myImg.ysiz,tileX*9,tileY*2,tileX*2,tileY*2);
+	 break;
+	 
+	 
+	 //words plus a picture of the player in different clothings based on the choice
+	 case "W+Player(costume)":
+	 vshift = 2;
+	 for (var a = 0; a < theMenu.words.length;a++){
+		myScreen.fillText(theMenu.words[a],tileX*9,tileY*(a+3+vshift));
+	}
+	var myImg = new tile().pic;
+	myScreen.drawImage(document.getElementById(myImg.sheet),myImg.getXind()*imageIndex,myImg.getYind()*imageIndex,myImg.xsiz,myImg.ysiz,tileX*9,tileY*2,tileX*2,tileY*2);
+	var myImg = player1.pic;
+	myScreen.drawImage(document.getElementById(myImg.sheet),myImg.getXind()*imageIndex,myImg.getYind()*imageIndex,myImg.xsiz,myImg.ysiz,tileX*9,tileY*2,tileX*2,tileY*2);
+	player1.properties.outfit.set_Type(theMenu.choices[menuPointer+menuindex]);
+	player1.properties.outfit.set_img("R");
+	var myImg = player1.properties.outfit.pic;
 	myScreen.drawImage(document.getElementById(myImg.sheet),myImg.getXind()*imageIndex,myImg.getYind()*imageIndex,myImg.xsiz,myImg.ysiz,tileX*9,tileY*2,tileX*2,tileY*2);
 	 break;
 	
@@ -293,14 +316,6 @@ function gamePiece(){
 	//the map position of this piece
 	this.mapx = -1;
 	this.mapy = -1;
-	//describes where the current image of this piece is on its sprite sheet
-	//this.xind = 0;
-	//this.yind = 0;
-	//sets the size of the piece's image
-	//this.xsiz = 100;
-	//this.ysiz = 100;
-	//what sprite sheet is the graphic on
-	//this.sheet = "sheet1";
 	//the image used to depict this piece
 	this.pic = new image()
 	//is this piece visible?
@@ -387,8 +402,6 @@ function landmark(){
 	this.xout = 2;
 	this.yout = 2;
 	this.pic.setSiz(200,200);
-	//this.xsiz = 200;
-	//this.ysiz = 200;
 };
 inheritPrototype(landmark,gamePiece);
 
@@ -443,9 +456,7 @@ function menu(){
 	this.type = "W";
 	this.title = "menu";
 	this.choices = [];
-	//this.usepics = false;
 	this.pictures = [];
-	//this.usewords = false;
 	this.words = [];
 }; 
 
