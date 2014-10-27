@@ -7,20 +7,24 @@ function show_Splash(){
 };
 
 //provides levels to the engine
-function get_Level(){
-	return new testlevel();
+function get_Level(){ 
+	var nUlev = new testlevel;
+	nUlev.init();
+	return nUlev;
 };
 
 
 //starts the fun
 function  start_Game(){
 	Game_State = "menu";
+	
 	var playermenu = new menu();
 	playermenu.title = "Pick an Explorer";
 	playermenu.choices = ["Dan","Stan","Fran","Dianne"];
 	playermenu.usewords = true;
 	playermenu.words = playermenu.choices;
 	playermenu.type = "W+P";
+	//playermenu.size = "Half";
 	playermenu.pictures.push( new image());
 	playermenu.pictures[0].setInd(6,4);
 	playermenu.pictures[0].comment = "Dan";
@@ -89,12 +93,25 @@ land.prototype.getVisible = function(){
 			}}
 		return mylist;
 		};
+land.prototype.setVisible = function(state){
+	if(this.occupied == true){this.occupant.visible = state;}
+	if(this.thing.collected == false){this.thing.visible = state;}
+	this.visible = state;
+} 
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //test level
 function testlevel(){
 	level.call(this);
 	this.map.create(50,50);
+	this.name = "funky level";
+	
+};
+inheritPrototype(testlevel,level);
+//testlevel.prototype.getMap = function(){return this.map.;};
+//makes the level
+testlevel.prototype.init = function(){
+	
 	for(var a = 0; a < 50; a++){
 		for(var b = 0; b < 50; b++){
 			var lnd = new land()
@@ -113,21 +130,25 @@ function testlevel(){
 		
 	}}
 	
-	this.map.get_Tile(3,1).thing = new testitem();
+	this.map.get_Tile(21,21).thing = new testitem();
 	this.map.get_Tile(3,0).occupant = new unit();
 	this.map.get_Tile(3,0).occupant.xind = 2;
 	this.map.get_Tile(3,0).occupied = true;
 	this.map.get_Tile(3,2).thing = new testitem();
 	
 	
-	this.map.get_Tile(4,0).occupant = new testplayer();
-	player1 = this.map.get_Tile(4,0).occupant;
-	player1.mapx = 4;
-	player1.mapy = 0;
+	this.map.get_Tile(7,2).occupant = new testplayer();
+	player1 = this.map.get_Tile(7,2).occupant;
+	player1.mapx = 7;
+	player1.mapy = 2;
 	activeUnit = player1;
-	this.map.get_Tile(4,0).occupied = true;
+	this.map.get_Tile(7,2).occupied = true;
+	
+	for(var a = 0; a < 50; a++){
+		for(var b = 0; b < 50; b++){
+			this.map.get_Tile(a,b).setVisible(false);
+		}}
 };
-inheritPrototype(testlevel,level);
 
 ////////////////////////////////////////////////////////////////////////////////////////////////////
 //test landmark
@@ -230,10 +251,10 @@ testplayer.prototype.set_img = function(image){
 testplayer.prototype.visCheck = function(){
 	for(var x = 0; x < mymap.length; x++){
 		for(var y = 0; y < mymap[x].length;y++){
-			if(mymap[x][y].isVisible()){mymap[x][y].fade = 0.5;}
+			if(mymap[x][y].isVisible()){mymap[x][y].pic.fade = 0.5;}
 			if(Math.abs(this.mapy-y) <= this.properties.vision && Math.abs(this.mapx-x) <= this.properties.vision){
 				
-				mymap[x][y].visible = true; mymap[x][y].fade = 0;
+				mymap[x][y].setVisible(true); mymap[x][y].pic.fade = 0;
 				
 				}
 			}}
