@@ -74,8 +74,7 @@ function Main(){
 	//show the start screen
 	myScreen.drawImage(document.getElementById("startscrn"),0,0,800,500,0,0,scrnX,scrnY);
 	//initialize the level and the map
-	myLevel = get_Level();
-	mymap = myLevel.map.get_Map();
+	setLevel( get_Level());
 	//go to the game's splash screen
 	setTimeout(function(){show_Splash();},1000)
 };
@@ -83,7 +82,8 @@ function Main(){
 //pass in a game level
 function setLevel(lv){
 	myLevel = lv;
-	mymap = lv.getMap();
+	mymap = myLevel.getMap();
+	
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -117,7 +117,7 @@ function mainClick(){
 	};
 
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //Graphics
 
 //pass in a canvas to set the graphics context
@@ -143,7 +143,10 @@ function showMesage(message){
 }
 
 //displays menus
-function showMenu(menu){
+function showMenu(){
+	
+	switch(theMenu.size){
+	case  "Full":
 	//darken the screen
 	myScreen.fillStyle = "#000000";
 	myScreen.fillRect(0,0,scrnX,scrnY);
@@ -161,7 +164,7 @@ function showMenu(menu){
 	//Words only menu
 	case "W":
 	for (var a = 0; a < theMenu.words.length;a++){
-		myScreen.fillText(theMenu.words[a],tileX*9,tileY*(a+3));
+		myScreen.fillText(theMenu.words[a],tileX*9,tileY*(a+3+vshift));
 	} break;
 	
 	//words plus a picture menu
@@ -194,9 +197,53 @@ function showMenu(menu){
 	//display the pointer
 	myScreen.drawImage(document.getElementById("sheet1"),0,500,imageIndex,imageIndex,tileX*8,tileY*(2+menuPointer+vshift),tileX,tileY);
 	if(chosen == true){handleMenu(theMenu.choices[menuPointer+menuindex])}
+	break;
 	
-
 	
+	//half-size menu*******************************************************************
+	case "Half":
+	var vshift = 0;
+	myScreen.fillStyle = "#000000";
+	myScreen.fillRect(0,0,tileX*6,scrnY);
+	//if the sctive unit is in the upper half of the screen, display the menu on the bottom half
+	if(activeUnit.mapy - Yfact < screenB/2){
+		myScreen.fillRect(0,scrnY/2,scrnX,scrnY/2);
+		vshift = (screenB/2);
+		//show thetitle
+		myScreen.fillStyle = "#FFFFFF";
+		myScreen.font = tileY+'px Arial';
+		myScreen.fillText(theMenu.title,tileX*9,tileY*(vshift+1));
+		}
+	//otherwise, show the menu at the top 
+	else{
+		myScreen.fillRect(0,0,scrnX,scrnY/2);
+		
+		//show thetitle
+		myScreen.fillStyle = "#FFFFFF";
+		myScreen.font = tileY+'px Arial';
+		myScreen.fillText(theMenu.title,tileX*9,tileY);
+		}
+	//add controls
+	showControls();
+	
+	switch(theMenu.type){	
+	//Words only menu
+	case "W":
+	if(activeUnit.mapy - Yfact < screenB/2){}
+	else{}
+	for (var a = 0; a < theMenu.words.length;a++){
+		myScreen.fillText(theMenu.words[a],tileX*9,tileY*(a+2+vshift));
+	} break;
+	break;
+	}
+	
+	//display the pointer
+	myScreen.drawImage(document.getElementById("sheet1"),0,500,imageIndex,imageIndex,tileX*8,tileY*(1+menuPointer+vshift),tileX,tileY);
+	if(chosen == true){handleMenu(theMenu.choices[menuPointer+menuindex])}
+	break;
+	break;
+	
+	}
 };
 
 
@@ -209,13 +256,15 @@ function draw_Map(){
 	
 	for(var y = screenT + Yfact; y < (screenB/magnify) + Yfact; y++){
 		for(var x = screenL + Xfact; x < (screenR/magnify) + Xfact; x++){
+		var myPic = mymap[x][y].pic;
 		//If the map tile is visible:
+		//console.log(x+" , "+y);
 		if(mymap[x][y].isVisible()){
 		//. . .draw it to the screen
-		var myPic = mymap[x][y].pic;
+		
 		myScreen.drawImage(document.getElementById(myPic.sheet),myPic.getXind() * imageIndex,myPic.getYind()*imageIndex,myPic.xsiz,myPic.ysiz,(x-Xfact)*tileX,(y-Yfact)*tileY,tileX+1,tileY+1);
 		//. . . and apply the apropriate fade.
-		myScreen.fillStyle = "rgba(0, 0, 0,"+mymap[x][y].getFade()+")";
+		myScreen.fillStyle = "rgba(0, 0, 0,"+myPic.getFade()+")";
 		myScreen.fillRect((x-Xfact)*tileX,(y-Yfact)*tileY,tileX+1,tileY+1);}
 	
 		//Otherwise, black out the square.
@@ -277,7 +326,7 @@ function showControls(){//if changing the number of tiles on the screen, fix wit
 }
 };
 
-
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //objects
 
 //subclassing method
@@ -295,13 +344,15 @@ function image(){
 	this.yind = 0;
 	this.xsiz = 100;
 	this.ysiz = 100;
+	this.fade = 0;
 };
 image.prototype = {
 	constructor: image,
 	setInd: function(x,y){this.xind = x; this.yind = y;},
 	setSiz: function(x,y){this.xsiz = x; this.ysiz = y;},
 	getXind: function(){return this.xind;},
-	getYind: function(){return this.yind;}
+	getYind: function(){return this.yind;},
+	getFade: function(){return this.fade;}
 };
 
 
@@ -408,6 +459,7 @@ inheritPrototype(landmark,gamePiece);
 
 //basic map
 function map(){
+	this.name = "A MAP";
 	this.mapX = 0;
 	this.mapY = 0;
 	this.theMap = [];
@@ -449,11 +501,15 @@ map.prototype = {
 //basic level
 function level(){
 	this.map = new map();
-}
+	this.name = "Basic Level";
+};
+level.prototype.getMap = function(){return this.map.get_Map();};
+level.prototype.init = function(){}
 
 //a set of menu options
 function menu(){
 	this.type = "W";
+	this.size = "Full";
 	this.title = "menu";
 	this.choices = [];
 	this.pictures = [];
