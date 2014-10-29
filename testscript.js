@@ -185,23 +185,28 @@ inheritPrototype(myUnit,unit);
 //passes commands to a unit
 myUnit.prototype.command = function(cmd){
 		this.AP_tot = this.AP_cost[cmd];
-		mymap[this.mapx][this.mapy].occupied = false;
+		
+		var moveFlag = false;
 		switch(cmd){
-			case "U": if(this.mapy > 0){this.target = mymap[this.mapx][this.mapy-1];if(this.moveCheck()){this.mapy -= 1;}}; break;
-			case "D": if(this.mapy < mymap[this.mapx].length-1){this.target = mymap[this.mapx][this.mapy+1];if(this.moveCheck()){this.mapy += 1;}};break;
-			case "L": if(this.mapx > 0){this.target = mymap[this.mapx-1][this.mapy];if(this.moveCheck()){this.mapx -= 1;}};break;
-			case "R": if(this.mapx < mymap.length-1){this.target = mymap[this.mapx+1][this.mapy];if(this.moveCheck()){this.mapx += 1;}};break;
-			case "UL": if(this.mapy > 0 && this.mapx > 0){this.target = mymap[this.mapx-1][this.mapy-1];if(this.moveCheck()){this.mapy -= 1;this.mapx -= 1;}};break;
-			case "UR": if(this.mapy > 0 && this.mapx < mymap.length-1){this.target = mymap[this.mapx+1][this.mapy-1];if(this.moveCheck()){this.mapy -= 1;this.mapx += 1;}};break;
-			case "LL": if(this.mapy < mymap[this.mapx].length-1 && this.mapx > 0){this.target = mymap[this.mapx-1][this.mapy+1];if(this.moveCheck()){this.mapy += 1;this.mapx -= 1;}};break;
-			case "LR": if(this.mapy < mymap[this.mapx].length-1 && this.mapx < mymap.length-1){this.target = mymap[this.mapx+1][this.mapy+1];if(this.moveCheck()){this.mapy += 1;this.mapx += 1;}};break;
+			case "U": if(this.mapy > 0){this.target = mymap[this.mapx][this.mapy-1];moveFlag = true;}; break;
+			case "D": if(this.mapy < mymap[this.mapx].length-1){this.target = mymap[this.mapx][this.mapy+1];moveFlag = true;};break;
+			case "L": if(this.mapx > 0){this.target = mymap[this.mapx-1][this.mapy];moveFlag = true;};break;
+			case "R": if(this.mapx < mymap.length-1){this.target = mymap[this.mapx+1][this.mapy];moveFlag = true;};break;
+			case "UL": if(this.mapy > 0 && this.mapx > 0){this.target = mymap[this.mapx-1][this.mapy-1];moveFlag = true;};break;
+			case "UR": if(this.mapy > 0 && this.mapx < mymap.length-1){this.target = mymap[this.mapx+1][this.mapy-1];moveFlag = true;};break;
+			case "LL": if(this.mapy < mymap[this.mapx].length-1 && this.mapx > 0){this.target = mymap[this.mapx-1][this.mapy+1];moveFlag = true;};break;
+			case "LR": if(this.mapy < mymap[this.mapx].length-1 && this.mapx < mymap.length-1){this.target = mymap[this.mapx+1][this.mapy+1];moveFlag = true;};break;
 			case "C": break;
 		}
-			mymap[this.mapx][this.mapy].occupied = true;
-			mymap[this.mapx][this.mapy].occupant = this;
+		if(moveFlag == true){if(this.moveCheck()){
+			 GStemp = Game_State;
+			Game_State = "Busy";
+			this.animate("move");
+			}
+		}
 			this.commandWrap();
 	};
-myUnit.prototype.commandWrap = function(){};
+myUnit.prototype.commandWrap = function(){display();showControls();};
 myUnit.prototype.moveCheck = function(){
 	if(this.target.mapx < this.mapx){this.set_img("L");}
 	if(this.target.mapx > this.mapx){this.set_img("R");}
@@ -212,8 +217,17 @@ myUnit.prototype.moveCheck = function(){
 	if(this.target.occupied == true){return false;}
 	return true;
 };
-myUnit.prototype.commandWrap = function(){this.visCheck();};
+myUnit.prototype.move = function(){
+	mymap[this.mapx][this.mapy].occupied = false;
+			this.mapx = this.target.mapx; this.mapy = this.target.mapy;
+			this.target.occupied = true;
+			this.target.occupant = activeUnit;
+};
+
+myUnit.prototype.commandWrap = function(){this.visCheck();display();showControls();};
 myUnit.prototype.visCheck = function(){};
+myUnit.prototype.animate = function(name){
+};
 
 
 /////////////////////////////////////////////////////////////////////////////////////////////
@@ -229,7 +243,7 @@ function testplayer(){
 	this.properties.class = "Ranger";
 };
 inheritPrototype(testplayer,myUnit);
-
+//select the right image
 testplayer.prototype.set_img = function(image){
 	switch(image){
 		case "L": switch(this.name){
@@ -248,6 +262,7 @@ testplayer.prototype.set_img = function(image){
 					 this.properties.outfit.set_img("R");break;
 	}
 };
+//visibility system check
 testplayer.prototype.visCheck = function(){
 	for(var x = 0; x < mymap.length; x++){
 		for(var y = 0; y < mymap[x].length;y++){
@@ -258,6 +273,38 @@ testplayer.prototype.visCheck = function(){
 				
 				}
 			}}
+};
+//animate the player
+testplayer.prototype.animate = function(name){
+	switch(name){
+		case "move":
+		var xinc = (this.target.mapx - this.mapx)*(tileX/10);
+		var yinc = (this.target.mapy - this.mapy)*(tileY/10);
+		var i = 0;
+		var timer = setInterval(function(){
+		 i += 1;
+		 if (i == 10){clearInterval(timer);
+			activeUnit.move();
+			activeUnit.pic.Xoffset = 0;
+			activeUnit.pic.Yoffset = 0;
+			activeUnit.properties.outfit.pic.Xoffset = 0;
+			activeUnit.properties.outfit.pic.Yoffset = 0;
+			activeUnit.visCheck();
+			Game_State = GStemp;}
+		else{
+		activeUnit.pic.Xoffset += xinc;
+		activeUnit.pic.Yoffset += yinc;
+		activeUnit.properties.outfit.pic.Xoffset += xinc;
+		activeUnit.properties.outfit.pic.Yoffset += yinc;
+		}
+		display();showControls();}
+		,20);
+		
+		
+		
+		
+		break;
+	}
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
