@@ -38,8 +38,10 @@ var myLevel = 0;
 var mymap = 0;
 
 //Game Mode
-//modes 0= initialization, "start" = splash screen,"play" = regular play, "menu" = in-game menus
+//modes 0= initialization, "start" = splash screen,"play" = regular play, "menu" = in-game menus,  "Busy" = busy, "Clear" = no longer busy
 var Game_State = 0;
+//temporary holder for Game_State
+var GStemp = Game_State;
 
 //id number for game pieces
 var IDcount = 0;
@@ -85,6 +87,16 @@ function setLevel(lv){
 	mymap = myLevel.getMap();
 	
 };
+
+//wait a specified amount of time
+//function wait(time){
+//	 var start = new Date().getTime();
+//	 console.log(start);
+//	 var tflag = false;
+//	 while (tflag == false){
+//		 if ((new Date().getTime() - start) > time){ tflag = true;}
+//	 }
+//}
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //input
@@ -300,7 +312,7 @@ function draw_Things(){
 			if(myStuff.length > 0){
 				for(var a = 0; a < myStuff.length; a++){
 				var myPic = myStuff[a].pic;
-				myScreen.drawImage(document.getElementById(myPic.sheet),myPic.getXind()*imageIndex,myPic.getYind()*imageIndex,myPic.xsiz,myPic.ysiz,(x-Xfact)*tileX,(y-Yfact)*tileY,tileX+1,tileY+1);
+				myScreen.drawImage(document.getElementById(myPic.sheet),myPic.getXind()*imageIndex,myPic.getYind()*imageIndex,myPic.xsiz,myPic.ysiz,((x-Xfact)*tileX)+myPic.Xoffset,((y-Yfact)*tileY)+myPic.Yoffset,tileX+1,tileY+1);
 				}}
 			
 		}}
@@ -345,6 +357,8 @@ function image(){
 	this.xsiz = 100;
 	this.ysiz = 100;
 	this.fade = 0;
+	this.Xoffset = 0;
+	this.Yoffset = 0;
 };
 image.prototype = {
 	constructor: image,
