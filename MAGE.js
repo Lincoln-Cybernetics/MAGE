@@ -260,7 +260,7 @@ function showMenu(){
 
 
 
-//show the current play state
+//show the current map
 function display(){draw_Map(); draw_Marks();draw_Things();}
 
 //draws the visible portion of the map
@@ -324,16 +324,29 @@ function show_Map(){}
 
 //shows the controls
 function showControls(){//if changing the number of tiles on the screen, fix with mainClick()
-	switch(Game_State){
-	case "play": 
+	var normShow = function(){
 	myScreen.drawImage(document.getElementById("sheet1"),0,400,300,100,0,scrnY-(tileY*9),tileX*6,(tileY*2)+1);
 	myScreen.drawImage(document.getElementById("sheet1"),300,400,300,100,0,scrnY-(tileY*7),tileX*6,(tileY*2)+1);
 	myScreen.drawImage(document.getElementById("sheet1"),300,500,300,100,0,scrnY-(tileY*5),tileX*6,(tileY*2)+1);
-	break;
-	case "menu":
+	};
+	
+	var menuShow = function(){
 	myScreen.drawImage(document.getElementById("sheet1"),100,400,100,100,tileX*2,scrnY-(tileY*9),tileX*2,(tileY*2)+1);
 	myScreen.drawImage(document.getElementById("sheet1"),400,400,100,100,tileX*2,scrnY-(tileY*7),tileX*2,(tileY*2)+1);
 	myScreen.drawImage(document.getElementById("sheet1"),400,500,100,100,tileX*2,scrnY-(tileY*5),tileX*2,(tileY*2)+1);
+	};
+	switch(Game_State){
+	case "play": 
+	normShow();
+	break;
+	case "menu":
+	menuShow();
+	break;
+	case "Busy":
+	normShow();
+	break;
+	case "Clear":
+	normShow();
 	break;
 }
 };
