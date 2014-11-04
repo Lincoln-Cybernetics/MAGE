@@ -131,8 +131,8 @@ testlevel.prototype.init = function(){
 	}}
 	
 	this.map.get_Tile(21,21).thing = new testitem();
-	this.map.get_Tile(3,0).occupant = new unit();
-	this.map.get_Tile(3,0).occupant.xind = 2;
+	this.map.get_Tile(3,0).occupant = new testmob();
+	this.map.get_Tile(3,0).occupant.init();
 	this.map.get_Tile(3,0).occupied = true;
 	this.map.get_Tile(3,2).thing = new testitem();
 	
@@ -281,21 +281,22 @@ testplayer.prototype.animate = function(name){
 		var xinc = (this.target.mapx - this.mapx)*(tileX/10);
 		var yinc = (this.target.mapy - this.mapy)*(tileY/10);
 		var i = 0;
+		var me = this;
 		var timer = setInterval(function(){
 		 i += 1;
 		 if (i == 10){clearInterval(timer);
-			activeUnit.move();
-			activeUnit.pic.Xoffset = 0;
-			activeUnit.pic.Yoffset = 0;
-			activeUnit.properties.outfit.pic.Xoffset = 0;
-			activeUnit.properties.outfit.pic.Yoffset = 0;
-			activeUnit.visCheck();
+			me.move();
+			me.pic.Xoffset = 0;
+			me.pic.Yoffset = 0;
+			me.properties.outfit.pic.Xoffset = 0;
+			me.properties.outfit.pic.Yoffset = 0;
+			me.visCheck();
 			Game_State = GStemp;}
 		else{
-		activeUnit.pic.Xoffset += xinc;
-		activeUnit.pic.Yoffset += yinc;
-		activeUnit.properties.outfit.pic.Xoffset += xinc;
-		activeUnit.properties.outfit.pic.Yoffset += yinc;
+		me.pic.Xoffset += xinc;
+		me.pic.Yoffset += yinc;
+		me.properties.outfit.pic.Xoffset += xinc;
+		me.properties.outfit.pic.Yoffset += yinc;
 		}
 		display();showControls();}
 		,20);
@@ -345,6 +346,68 @@ costume.prototype.set_img = function(image){
 					case "Lumberjack": this.pic.setInd(4,1);break;
 				 }break;
 			}break;
+	}
+};
+/////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Mob
+function testmob(){
+	myUnit.call(this);
+	this.name = "Bear";
+	this.pic.sheet = "mobz";
+	//this.visible = true;
+	//this.properties.clothed = true;
+	//this.properties.outfit = new costume();
+	this.properties.screenborder = 1;
+	this.properties.class = "Bear";
+};
+inheritPrototype(testmob,myUnit);
+//kicks things off
+testmob.prototype.init = function(){this.set_img();}
+//select the right image
+testmob.prototype.set_img = function(image){
+	switch(image){
+		default: this.pic.setInd(7,0);break;
+	}
+};
+//visibility system check
+testmob.prototype.visCheck = function(){
+	//for(var x = 0; x < mymap.length; x++){
+	//	for(var y = 0; y < mymap[x].length;y++){
+	//		if(mymap[x][y].isVisible()){mymap[x][y].pic.fade = 0.5;}
+	//		if(Math.abs(this.mapy-y) <= this.properties.vision && Math.abs(this.mapx-x) <= this.properties.vision){
+	//			
+	//			mymap[x][y].setVisible(true); mymap[x][y].pic.fade = 0;
+	//			
+	//			}
+	//		}}
+};
+//animate the mob
+testmob.prototype.animate = function(name){
+	switch(name){
+		case "move":
+		var xinc = (this.target.mapx - this.mapx)*(tileX/10);
+		var yinc = (this.target.mapy - this.mapy)*(tileY/10);
+		var i = 0;
+		var me = this;
+		var timer = setInterval(function(){
+		 i += 1;
+		 if (i == 10){clearInterval(timer);
+			me.move();
+			me.pic.Xoffset = 0;
+			me.pic.Yoffset = 0;
+			me.visCheck();
+			Game_State = GStemp;}
+		else{
+		me.pic.Xoffset += xinc;
+		me.pic.Yoffset += yinc;
+		}
+		display();showControls();}
+		,20);
+		
+		
+		
+		
+		break;
 	}
 };
 
