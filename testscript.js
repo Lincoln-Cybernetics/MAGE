@@ -13,7 +13,7 @@ function get_Level(){
 	return nUlev;
 };
 
-
+////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 //starts the fun
 function  start_Game(){
 	Game_State = "menu";
@@ -40,6 +40,12 @@ function  start_Game(){
 	theMenu = playermenu;
 	showMenu();
 	
+};
+
+//starts a new turn
+function start_Turn(){
+player1.properties.AP_c = player1.properties.AP_max;
+Game_State = "play";player1.visCheck();display();showControls();	
 };
 
 ///////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -180,6 +186,8 @@ function myUnit(){
 	this.AP_tot = 0;
 	this.AP_cost = {"U":1,"D":1,"L":1,"R":1,"UL":2,"UR":2,"LL":2,"LR":2,"C":0};
 	this.properties.vision = 1;
+	this.properties.AP_max = 10;
+	this.properties.AP_c = 10;
 };
 inheritPrototype(myUnit,unit);
 //passes commands to a unit
@@ -199,14 +207,15 @@ myUnit.prototype.command = function(cmd){
 			case "C": break;
 		}
 		if(moveFlag == true){if(this.moveCheck()){
-			 GStemp = Game_State;
-			Game_State = "Busy";
+			
 			this.animate("move");
 			}
 		}
 			this.commandWrap();
 	};
-myUnit.prototype.commandWrap = function(){display();showControls();};
+myUnit.prototype.commandWrap = function(){
+	this.properties.AP_c -= this.AP_tot;
+	display();showControls();};
 myUnit.prototype.moveCheck = function(){
 	if(this.target.mapx < this.mapx){this.set_img("L");}
 	if(this.target.mapx > this.mapx){this.set_img("R");}
@@ -224,7 +233,7 @@ myUnit.prototype.move = function(){
 			this.target.occupant = activeUnit;
 };
 
-myUnit.prototype.commandWrap = function(){this.visCheck();display();showControls();};
+//myUnit.prototype.commandWrap = function(){this.visCheck();display();showControls();};
 myUnit.prototype.visCheck = function(){};
 myUnit.prototype.animate = function(name){
 };
@@ -241,6 +250,8 @@ function testplayer(){
 	this.properties.outfit = new costume();
 	this.properties.screenborder = 1;
 	this.properties.class = "Ranger";
+	//this.properties.AP_max = 10;
+	//this.properties.AP_c = 10;
 };
 inheritPrototype(testplayer,myUnit);
 //select the right image
@@ -276,6 +287,8 @@ testplayer.prototype.visCheck = function(){
 };
 //animate the player
 testplayer.prototype.animate = function(name){
+	 GStemp = Game_State;
+	Game_State = "Busy";
 	switch(name){
 		case "move":
 		var xinc = (this.target.mapx - this.mapx)*(tileX/10);
@@ -291,7 +304,7 @@ testplayer.prototype.animate = function(name){
 			me.properties.outfit.pic.Xoffset = 0;
 			me.properties.outfit.pic.Yoffset = 0;
 			me.visCheck();
-			Game_State = GStemp;}
+			}
 		else{
 		me.pic.Xoffset += xinc;
 		me.pic.Yoffset += yinc;
@@ -306,6 +319,8 @@ testplayer.prototype.animate = function(name){
 		
 		break;
 	}
+	Game_State = GStemp;
+	
 };
 
 /////////////////////////////////////////////////////////////////////////////////////////////////////
@@ -359,6 +374,8 @@ function testmob(){
 	//this.properties.outfit = new costume();
 	this.properties.screenborder = 1;
 	this.properties.class = "Bear";
+	//this.properties.AP_max = 10;
+	//this.properties.AP_c = 10;
 };
 inheritPrototype(testmob,myUnit);
 //kicks things off
