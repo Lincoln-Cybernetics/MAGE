@@ -37,8 +37,9 @@ var myLevel = 0;
 //the level map
 var mymap = 0;
 
-//Game Mode
-//modes 0= initialization, "start" = splash screen,"play" = regular play, "menu" = in-game menus,  "Busy" = busy, "Clear" = no longer busy
+//Game State
+//modes 0= initialization, "start" = splash screen,"play" = regular play, "menu" = in-game menus,  "Busy" = busy, "Clear" = no longer busy,"turn_over" = the turn is over
+
 var Game_State = 0;
 //temporary holder for Game_State
 var GStemp = Game_State;
@@ -115,6 +116,7 @@ function mainClick(){
 		}
 		else{handleInput(mainX,mainY);}
 		display();showControls();
+		if(player1.properties.AP_c < 1){console.log("Turn Over"+ player1.properties.AP_c);Game_State = "turn_over";}
 		break;
 		//menu navigation
 		case "menu":
@@ -124,6 +126,10 @@ function mainClick(){
 			if(mainY==7 || mainY == 8){if(menuPointer == 3){}else{menuPointer += 1;}}
 			}
 			showMenu();
+		break;
+		//end of the turn
+		case "turn_over":
+		if(mainX >= 2 && mainX < 4){if(mainY == 5 || mainY == 6){start_Turn();}}
 		break;
 	}
 	};
@@ -346,6 +352,9 @@ function showControls(){//if changing the number of tiles on the screen, fix wit
 	normShow();
 	break;
 	case "Clear":
+	normShow();
+	break;
+	case "turn_over":
 	normShow();
 	break;
 }
