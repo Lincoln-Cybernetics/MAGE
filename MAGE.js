@@ -80,6 +80,7 @@ function Main(){
 	setLevel( get_Level());
 	//go to the game's splash screen
 	setTimeout(function(){show_Splash();},1000)
+	
 };
 
 //pass in a game level
@@ -116,7 +117,7 @@ function mainClick(){
 		}
 		else{handleInput(mainX,mainY);}
 		display();showControls();
-		if(player1.properties.AP_c < 1){console.log("Turn Over"+ player1.properties.AP_c);Game_State = "turn_over";}
+		//if(player1.properties.AP_c < 1){showMesage("Full/Fade","Turn Over");Game_State = "turn_over";}//console.log("Turn Over"+ player1.properties.AP_c);Game_State = "turn_over";}
 		break;
 		//menu navigation
 		case "menu":
@@ -132,6 +133,7 @@ function mainClick(){
 		if(mainX >= 2 && mainX < 4){if(mainY == 5 || mainY == 6){start_Turn();}}
 		break;
 	}
+	if(player1.properties.AP_c < 1){Game_State = "turn_over";}
 	};
 
 
@@ -156,8 +158,17 @@ function setScreen(view){
 //display methods
 
 //show a message on the screen
-function showMesage(message){
-	
+function showMesage(type, message){
+	switch(type){
+	case "Full/Fade":
+	myScreen.fillStyle = "rgba(0, 0, 0,0.5)";
+	myScreen.fillRect(0,0,scrnX,scrnY);
+	myScreen.fillStyle = "#FFFFFF";
+	myScreen.font = tileY*2+'px Arial';
+	myScreen.fillText(message,tileX*9,tileY*4);
+	showControls();
+	break;	
+	}
 }
 
 //displays menus
@@ -267,7 +278,12 @@ function showMenu(){
 
 
 //show the current map
-function display(){draw_Map(); draw_Marks();draw_Things();}
+function display(){
+	switch(Game_State){
+		case "turn_over": showMesage("Full/Fade","Turn Over");console.log("+"); break;
+	    default:draw_Map(); draw_Marks();draw_Things();break;
+	    }
+	}
 
 //draws the visible portion of the map
 function draw_Map(){
@@ -355,9 +371,19 @@ function showControls(){//if changing the number of tiles on the screen, fix wit
 	normShow();
 	break;
 	case "turn_over":
-	normShow();
+	myScreen.drawImage(document.getElementById("sheet1"),400,400,100,100,tileX*2,scrnY-(tileY*7),tileX*2,(tileY*2)+1);
 	break;
 }
+};
+
+//////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+//Mechanic/Utility
+function dice(number,sides){
+	var total = 0;
+	for(var a  = 0; a < number; a++){
+		total += Math.round(Math.random()*(sides-1))+1;
+	}
+	return total;
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
