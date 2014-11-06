@@ -212,10 +212,13 @@ myUnit.prototype.command = function(cmd){
 			}
 		}
 			this.commandWrap();
+			
 	};
 myUnit.prototype.commandWrap = function(){
 	this.properties.AP_c -= this.AP_tot;
-	display();showControls();};
+	display();showControls();
+	
+	};
 myUnit.prototype.moveCheck = function(){
 	if(this.target.mapx < this.mapx){this.set_img("L");}
 	if(this.target.mapx > this.mapx){this.set_img("R");}
