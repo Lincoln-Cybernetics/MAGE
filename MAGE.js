@@ -133,7 +133,7 @@ function mainClick(){
 		if(mainX >= 2 && mainX < 4){if(mainY == 5 || mainY == 6){start_Turn();}}
 		break;
 	}
-	if(player1.properties.AP_c < 1){Game_State = "turn_over";}
+	
 	};
 
 
@@ -279,9 +279,11 @@ function showMenu(){
 
 //show the current map
 function display(){
+	draw_Map(); draw_Marks();draw_Things();
 	switch(Game_State){
-		case "turn_over": showMesage("Full/Fade","Turn Over");console.log("+"); break;
-	    default:draw_Map(); draw_Marks();draw_Things();break;
+		case "turn_over": showMesage("Full/Fade","Turn Over"); break;
+		case "play": showStatus("AP");break;
+	    default:break;
 	    }
 	}
 
@@ -290,6 +292,11 @@ function draw_Map(){
 	
 	for(var y = screenT + Yfact; y < (screenB/magnify) + Yfact; y++){
 		for(var x = screenL + Xfact; x < (screenR/magnify) + Xfact; x++){
+		//black out anything beyond the edge of the map
+		if(x<0 || y < 0 || x>mymap.length-1 || y > mymap[x].length-1){
+			myScreen.fillStyle = ("#000000");myScreen.fillRect((x-Xfact)*tileX,(y-Yfact)*tileY,tileX+1,tileY+1);}
+		//draw normally
+		else{
 		var myPic = mymap[x][y].pic;
 		//If the map tile is visible:
 		//console.log(x+" , "+y);
@@ -303,6 +310,8 @@ function draw_Map(){
 	
 		//Otherwise, black out the square.
 		else{myScreen.fillStyle = ("#000000");myScreen.fillRect((x-Xfact)*tileX,(y-Yfact)*tileY,tileX+1,tileY+1);}
+		}
+		
 		}}
 	
 	
@@ -310,12 +319,24 @@ function draw_Map(){
 	
 //draws on the landmarks
 function draw_Marks(){
+	
+	//run through the screen
 	for(var y = screenT + Yfact; y < (screenB/magnify) + Yfact; y++){
 		for(var x = screenL + Xfact; x < (screenR/magnify) + Xfact; x++){
+			//if the area in question is not on the map, do nothing
+			if(x<0 || y < 0 || x>mymap.length-1 || y > mymap[x].length-1){}
+			//otherwise: reset the mark to unseen 
+			else{
 			if(mymap[x][y].marked == true){mymap[x][y].mark.spotted = false;}
-		}}
+		}}}
+		
+	//run the screen again
 	for(var y = screenT + Yfact; y < (screenB/magnify) + Yfact; y++){
 		for(var x = screenL + Xfact; x < (screenR/magnify) + Xfact; x++){
+		//if the area in question is not on the map, do nothing
+			if(x<0 || y < 0 || x>mymap.length-1 || y > mymap[x].length-1){}
+			//otherwise: render the landmark 
+			else{
 		if(mymap[x][y].marked == true){
 			if(mymap[x][y].mark.spotted == false ){
 				if(mymap[x][y].isVisible()){
@@ -323,12 +344,16 @@ function draw_Marks(){
 				myScreen.drawImage(document.getElementById(myPic.sheet),myPic.getXind()*imageIndex,myPic.getYind()*imageIndex,myPic.xsiz,myPic.ysiz,(mymap[x][y].mark.mapx-Xfact)*tileX,(mymap[x][y].mark.mapy-Yfact)*tileY,tileX*mymap[x][y].mark.xout,tileY*mymap[x][y].mark.yout);
 				mymap[x][y].mark.spotted = true;
 			}}
-		}}}
+		}}}}
 	};
 //draws items & units, etc.
 function draw_Things(){
 	for(var y = screenT + Yfact; y < (screenB/magnify) + Yfact; y++){
 		for(var x = screenL + Xfact; x < (screenR/magnify) + Xfact; x++){
+			//if the area in question is not on the map, do nothing
+			if(x<0 || y < 0 || x>mymap.length-1 || y > mymap[x].length-1){}
+			//otherwise, render visible items
+			else{
 			var myStuff = [];
 			myStuff = mymap[x][y].getVisible();
 			if(myStuff.length > 0){
@@ -336,7 +361,7 @@ function draw_Things(){
 				var myPic = myStuff[a].pic;
 				myScreen.drawImage(document.getElementById(myPic.sheet),myPic.getXind()*imageIndex,myPic.getYind()*imageIndex,myPic.xsiz,myPic.ysiz,((x-Xfact)*tileX)+myPic.Xoffset,((y-Yfact)*tileY)+myPic.Yoffset,tileX+1,tileY+1);
 				}}
-			
+			}
 		}}
 	};
 
@@ -374,6 +399,19 @@ function showControls(){//if changing the number of tiles on the screen, fix wit
 	myScreen.drawImage(document.getElementById("sheet1"),400,400,100,100,tileX*2,scrnY-(tileY*7),tileX*2,(tileY*2)+1);
 	break;
 }
+};
+
+function  showStatus(stat){
+	switch(stat){
+		case "AP": 
+		myScreen.fillStyle = ("#14A400");
+		myScreen.fillRect(0,0,tileX*6,tileY*2);
+		myScreen.fillStyle = ("#000000");
+		myScreen.font = tileY+'px Arial';
+		myScreen.fillText("AP: "+player1.properties.AP_c+"/"+player1.properties.AP_max,tileX/1,tileY*1);
+		//console.log("ok");
+		break;
+	}
 };
 
 //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
