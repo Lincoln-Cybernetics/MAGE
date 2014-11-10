@@ -211,7 +211,7 @@ myUnit.prototype.command = function(cmd){
 			this.animate("move");
 			}
 		}
-			this.commandWrap();
+			
 			
 	};
 myUnit.prototype.commandWrap = function(){
@@ -276,6 +276,18 @@ testplayer.prototype.set_img = function(image){
 					 this.properties.outfit.set_img("R");break;
 	}
 };
+//called each time the player moves
+testplayer.prototype.moveCheck = function(){
+	if(this.target.mapx < this.mapx){this.set_img("L");}
+	if(this.target.mapx > this.mapx){this.set_img("R");}
+	if(this.target.mapx > screenR+Xfact-(7+this.properties.screenborder)){if(Xfact+screenR < mymap.length+(7)){Xfact += 1;}}
+	if(this.target.mapx < Xfact+screenL+this.properties.screenborder+6){if(Xfact+screenL > 0-(6)){Xfact -= 1;}}
+	if(this.target.mapy > screenB+Yfact-(3+this.properties.screenborder)){if(Yfact+screenB < mymap[this.mapx].length+(3)){Yfact += 1;}}
+	if(this.target.mapy < Yfact+screenT+this.properties.screenborder+2){if(Yfact+screenT > 0-(2)){Yfact -= 1;}}
+	if(this.target.occupied == true){return false;}
+	return true;
+};
+
 //visibility system check
 testplayer.prototype.visCheck = function(){
 	for(var x = 0; x < mymap.length; x++){
@@ -288,6 +300,15 @@ testplayer.prototype.visCheck = function(){
 				}
 			}}
 };
+
+//called after each command
+testplayer.prototype.commandWrap = function(){
+	this.properties.AP_c -= this.AP_tot;
+	if(this.properties.AP_c < 1){Game_State = "turn_over";}
+	display();showControls();
+	
+	};
+
 //animate the player
 testplayer.prototype.animate = function(name){
 	 GStemp = Game_State;
@@ -307,6 +328,7 @@ testplayer.prototype.animate = function(name){
 			me.properties.outfit.pic.Xoffset = 0;
 			me.properties.outfit.pic.Yoffset = 0;
 			me.visCheck();
+			me.commandWrap();
 			}
 		else{
 		me.pic.Xoffset += xinc;
@@ -403,6 +425,8 @@ testmob.prototype.visCheck = function(){
 };
 //animate the mob
 testmob.prototype.animate = function(name){
+	 GStemp = Game_State;
+	Game_State = "Busy";
 	switch(name){
 		case "move":
 		var xinc = (this.target.mapx - this.mapx)*(tileX/10);
@@ -416,7 +440,8 @@ testmob.prototype.animate = function(name){
 			me.pic.Xoffset = 0;
 			me.pic.Yoffset = 0;
 			me.visCheck();
-			Game_State = GStemp;}
+			me.commandWrap();
+			}
 		else{
 		me.pic.Xoffset += xinc;
 		me.pic.Yoffset += yinc;
@@ -429,5 +454,6 @@ testmob.prototype.animate = function(name){
 		
 		break;
 	}
+	Game_State = GStemp;
 };
 
