@@ -44,6 +44,14 @@ function  start_Game(){
 
 //starts a new turn
 function start_Turn(){
+	for(var x = 0; x < mymap.length; x++){
+		for(var y = 0; y < mymap[x].length; y++){
+			if(mymap[x][y].occupied == true){
+				if(mymap[x][y].occupant != player1){
+					mymap[x][y].occupant.takeTurn();
+					}
+				}
+		}}
 player1.properties.AP_c = player1.properties.AP_max;
 Game_State = "play";player1.visCheck();display();showControls();	
 };
@@ -456,4 +464,6 @@ testmob.prototype.animate = function(name){
 	}
 	Game_State = GStemp;
 };
-
+testmob.prototype.takeTurn = function(){
+	console.log("I took a turn.");
+};
